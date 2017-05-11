@@ -10,27 +10,34 @@ local HEAP_XMIN_INVALID	=	0x0200	--/* t_xmin invalid/aborted */
 local HEAP_XMIN_FROZEN = band(HEAP_XMIN_COMMITTED,HEAP_XMIN_INVALID)
 
 local function GETSTRUCT(TUP)
-  local addr = ffi.cast("intptr_t", (TUP).t_data)
-  return ffi.cast('char*',addr+(TUP.t_data.t_hoff))
+    local addr = ffi.cast("intptr_t", (TUP).t_data)
+    return ffi.cast('char*',addr+(TUP.t_data.t_hoff))
 end
 
 local function PG_DETOAST_DATUM(datum)
-  return C.pg_detoast_datum(ffi.cast('struct varlena*', ffi.cast('Pointer', datum)))
+    return C.pg_detoast_datum(ffi.cast('struct varlena*', ffi.cast('Pointer', datum)))
 end
 
+local function ReleaseTupleDesc(tupdesc)
+        if tupdesc.tdrefcount >= 0 then
+            C.DecrTupleDescRefCount(tupdesc)
+        end
+end
+
+
 local function SET_4_BYTES(X)
-  --(((Datum) (value)) & 0xffffffff)
-  return (band(ffi.cast('Datum', X), 0xffffffff))
+    --(((Datum) (value)) & 0xffffffff)
+    return (band(ffi.cast('Datum', X), 0xffffffff))
 end
 
 local function GET_2_BYTES(X)
-  --(((Datum) (value)) & 0x0000ffff)
-  return (band(ffi.cast('Datum', X), 0x0000ffff))
+    --(((Datum) (value)) & 0x0000ffff)
+    return (band(ffi.cast('Datum', X), 0x0000ffff))
 end
 
 
 local function ObjectIdGetDatum(X)
-  return ffi.cast('Datum', SET_4_BYTES(X))
+    return ffi.cast('Datum', SET_4_BYTES(X))
 end
 
 local function HeapTupleHeaderXminFrozen(tup)
@@ -67,14 +74,15 @@ end
 
 
 return {
-  GETSTRUCT = GETSTRUCT,
-  PG_DETOAST_DATUM = PG_DETOAST_DATUM,
-  SET_4_BYTES = SET_4_BYTES,
-  ObjectIdGetDatum = ObjectIdGetDatum,
-  HeapTupleHeaderXminFrozen = HeapTupleHeaderXminFrozen,
-  DatumGetArrayTypeP = DatumGetArrayTypeP,
-  HeapTupleHeaderGetRawXmin = HeapTupleHeaderGetRawXmin,
-  HeapTupleHeaderGetXmin = HeapTupleHeaderGetXmin,
-  GET_2_BYTES = GET_2_BYTES,
-  SET_VARSIZE = SET_VARSIZE,
+    GETSTRUCT = GETSTRUCT,
+    PG_DETOAST_DATUM = PG_DETOAST_DATUM,
+    SET_4_BYTES = SET_4_BYTES,
+    ObjectIdGetDatum = ObjectIdGetDatum,
+    HeapTupleHeaderXminFrozen = HeapTupleHeaderXminFrozen,
+    DatumGetArrayTypeP = DatumGetArrayTypeP,
+    HeapTupleHeaderGetRawXmin = HeapTupleHeaderGetRawXmin,
+    HeapTupleHeaderGetXmin = HeapTupleHeaderGetXmin,
+    GET_2_BYTES = GET_2_BYTES,
+    SET_VARSIZE = SET_VARSIZE,
+    ReleaseTupleDesc = ReleaseTupleDesc,
 }

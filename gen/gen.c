@@ -28,6 +28,8 @@
 #include <commands/trigger.h>
 
 #include <parser/parse_type.h>
+#include <funcapi.h>
+#include <utils/typcache.h>
 
 #define cdecl_nstruct(tag)               void cdecl_struct__ ## tag(tag *unused) {}
 
@@ -240,7 +242,7 @@ cdecl_func(heap_copy_tuple_as_datum)
 cdecl_func(heap_freetuple)
 
 cdecl_const(HEAPTUPLESIZE)
-//cdecl_func(DatumGetHeapTupleHeader)
+//cdecl_func(DatumGetHeapTupleHeader) this is macro
 cdecl_func(SPI_returntuple)
 cdecl_func(SPI_copytuple)
 
@@ -253,3 +255,8 @@ cdecl_const(VOIDOID)
 //cdecl_func(stringToQualifiedNameList)
 cdecl_func(parseTypeString)
 cdecl_func(InputFunctionCall)
+cdecl_func(lookup_rowtype_tupdesc_noerror)
+cdecl_func(CreateTupleDescCopyConstr)
+cdecl_func(BlessTupleDesc)
+cdecl_func(DecrTupleDescRefCount)
+cdecl_func(GetAttributeByNum)
